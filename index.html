@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>LAB Production Dashboard</title>
+
+
+    <!-- GOOGLE FONTS -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- CHART.JS -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js"
+    ></script>
+
+
+    <!-- HTML2CANVAS -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
+    ></script>
+
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+    
+<!-- =====================================================
+     SIMPLE LOGIN SCREEN
+===================================================== -->
+
+<div id="loginScreen" class="login-screen">
+
+    <div class="login-card">
+
+        <div class="login-brand">
+            ZENITEX
+        </div>
+
+        <h1>
+            ระบบติดตามการผลิตสี โรง PVC
+        </h1>
+
+        <p>
+            กรุณากรอกรหัสผ่านเพื่อเข้าสู่ระบบ
+        </p>
+
+
+        <form id="loginForm">
+
+            <label for="loginPassword">
+                รหัสผ่าน
+            </label>
+
+
+            <div class="password-box">
+
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="กรอกรหัสผ่าน"
+                    autocomplete="current-password"
+                    required
+                >
+
+
+                <button
+                    type="button"
+                    id="togglePassword"
+                    class="toggle-password"
+                    aria-label="แสดงหรือซ่อนรหัสผ่าน"
+                >
+                    👁
+                </button>
+
+            </div>
+
+
+            <div
+                id="loginError"
+                class="login-error"
+            >
+            </div>
+
+
+            <button
+                type="submit"
+                class="login-button"
+            >
+                เข้าสู่ระบบ
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="main-header">
+
+    <div class="header-left">
+
+        <img
+           src="./logo.png"
+           alt="Company Logo"
+           class="header-logo"
+        >
+
+
+        <div class="header-title">
+
+            <h1>
+                ระบบติดตามการผลิตสี โรง PVC 
+            </h1>
+
+            <p>
+               PVC Color Production Monitoring System
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="header-right">
+
+        <div
+            class="connection-status"
+            id="connectionStatus"
+        >
+
+            <span class="live-dot"></span>
+
+            <span id="connectionText">
+                LIVE
+            </span>
+
+        </div>
+
+
+        <div id="clock">
+            --:--:--
+        </div>
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================================================
+     MAIN DASHBOARD
+========================================================= -->
+
+<main class="dashboard-container">
+
+
+
+    <!-- =====================================================
+         QUEUE TABLE
+    ====================================================== -->
+
+    <section
+        class="dashboard-card"
+        id="queueSection"
+    >
+
+        <div class="section-header">
+
+            <div class="section-title-group">
+
+                <h2 class="section-title-with-icon">
+
+                    <span
+                        class="section-title-icon"
+                        aria-hidden="true"
+                    >
+                        <svg viewBox="0 0 24 24">
+
+                            <path d="M9 6h11"></path>
+                            <path d="M9 12h11"></path>
+                            <path d="M9 18h11"></path>
+
+                            <path d="M4 6h.01"></path>
+                            <path d="M4 12h.01"></path>
+                            <path d="M4 18h.01"></path>
+
+                        </svg>
+                    </span>
+
+                    <span>
+                        Queue Table
+                    </span>
+
+                </h2>
+
+                <p>
+                    รายการงานที่กำลังผลิต ขัดข้อง และรอคิว
+                </p>
+
+            </div>
+
+
+            <div class="queue-header-summary">
+
+                <span>
+                    RUNNING
+                    <strong id="queueHeaderRunning">0</strong>
+                </span>
+
+                <span class="queue-summary-divider">|</span>
+
+                <span>
+                    WAITING
+                    <strong id="queueHeaderWaiting">0</strong>
+                </span>
+
+                <span class="queue-summary-divider">|</span>
+
+                <span>
+                    TOTAL
+                    <strong id="queueHeaderWeight">0 KG</strong>
+                </span>
+
+                <span class="queue-summary-divider">|</span>
+
+                <strong id="queueCount">
+                    0 ORDERS
+                </strong>
+
+</div>
+        </div>
+
+
+        <div class="table-scroll queue-table-scroll">
+
+            <table class="data-table queue-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th class="col-queue">
+                            QUEUE
+                        </th>
+
+                        <th class="col-status">
+                            STATUS
+                        </th>
+
+                        <th class="col-order">
+                            ORDER NO
+                        </th>
+
+                        <th class="col-type">
+                            TYPE
+                        </th>
+
+                        <th class="col-requester">
+                            REQUESTER
+                        </th>
+
+                        <th class="col-customer">
+                            CUSTOMER
+                        </th>
+
+                        <th class="col-fabric">
+                            FABRIC
+                        </th>
+
+                        <th class="col-color">
+                            COLOR
+                        </th>
+
+                        <th class="col-machine">
+                            MACHINE
+                        </th>
+
+                        <th class="col-batch">
+                            BATCH
+                        </th>
+
+                        <th class="col-weight">
+                            KG
+                        </th>
+
+                        <th class="col-forecast">
+                            FORECAST
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="queueBody">
+
+                    <tr>
+
+                        <td
+                            colspan="12"
+                            class="table-message"
+                        >
+                            Loading live data...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         KPI
+    ====================================================== -->
+
+    <section class="kpi-grid">
+
+
+        <article class="kpi-card">
+
+            <div class="kpi-top">
+
+                <span class="kpi-icon">
+                    ⚙️
+                </span>
+
+                <span class="kpi-label">
+                    RUNNING ORDERS
+                </span>
+
+            </div>
+
+
+            <div
+                class="kpi-value"
+                id="kpiRunning"
+            >
+                0
+            </div>
+
+
+            <div class="kpi-description">
+                กำลังดำเนินงานและขัดข้อง
+            </div>
+
+        </article>
+
+
+
+        <article class="kpi-card">
+
+            <div class="kpi-top">
+
+                <span class="kpi-icon">
+                    🕐
+                </span>
+
+                <span class="kpi-label">
+                    WAITING ORDERS
+                </span>
+
+            </div>
+
+
+            <div
+                class="kpi-value"
+                id="kpiWaiting"
+            >
+                0
+            </div>
+
+
+            <div class="kpi-description">
+                รายการที่กำลังรอคิว
+            </div>
+
+        </article>
+
+
+
+        <article class="kpi-card">
+
+            <div class="kpi-top">
+
+                <span class="kpi-icon">
+                    📦
+                </span>
+
+                <span class="kpi-label">
+                    QUEUE WEIGHT
+                </span>
+
+            </div>
+
+
+            <div class="kpi-value-row">
+
+                <div
+                    class="kpi-value"
+                    id="kpiTotalWeight"
+                >
+                    0
+                </div>
+
+                <span class="kpi-unit">
+                    kg
+                </span>
+
+            </div>
+
+
+            <div class="kpi-description">
+                น้ำหนักรวมของงานในระบบปัจจุบัน
+            </div>
+
+        </article>
+
+
+
+        <article class="kpi-card">
+
+            <div class="kpi-top">
+
+                <span class="kpi-icon">
+                    ✅
+                </span>
+
+                <span class="kpi-label">
+                    LATEST FINISHED
+                </span>
+
+            </div>
+
+
+            <div class="kpi-value-row">
+
+                <div
+                    class="kpi-value"
+                    id="kpiLatestFinishedWeight"
+                >
+                    —
+                </div>
+
+                <span class="kpi-unit">
+                    kg
+                </span>
+
+            </div>
+
+
+            <div class="kpi-description">
+                น้ำหนัก Order ล่าสุดที่ผลิตเสร็จ
+            </div>
+
+        </article>
+
+
+    </section>
+
+<!-- =====================================================
+         MACHINE STATUS
+    ====================================================== -->
+
+    <section
+        class="dashboard-card"
+        id="machineStatusSection"
+    >
+
+        <div class="section-header">
+
+            <div class="section-title-group">
+
+                <h2 class="section-title-with-icon">
+
+                    <span
+                        class="section-title-icon"
+                        aria-hidden="true"
+                    >
+                        <svg viewBox="0 0 24 24">
+
+                            <path d="M3 21V10l5 3V9l5 3V6h8v15"></path>
+
+                            <path d="M3 21h18"></path>
+
+                            <circle
+                                cx="17"
+                                cy="11"
+                                r="2"
+                            ></circle>
+
+                        </svg>
+                    </span>
+
+                    <span>
+                        Machine Status
+                    </span>
+
+                </h2>
+
+                <p>
+                    สถานะเครื่องผสมสีแบบ Real-time
+                </p>
+
+            </div>
+
+
+            <div class="machine-legend">
+
+                <span class="legend-item">
+
+                    <i class="legend-dot machine-free-dot"></i>
+
+                    ว่าง
+
+                </span>
+
+
+                <span class="legend-item">
+
+                    <i class="legend-dot machine-running-dot"></i>
+
+                    กำลังใช้งาน
+
+                </span>
+
+
+                <span class="legend-item">
+
+                    <i class="legend-dot machine-trouble-dot"></i>
+
+                    ขัดข้อง
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="section-body">
+
+    <div class="machine-status-groups">
+
+        <!-- ==============================
+             1000 KG MIXERS
+        =============================== -->
+
+        <div class="machine-group">
+
+            <div class="machine-group-header">
+
+                <span class="machine-group-size">
+                    1000 KG
+                </span>
+
+                <span class="machine-group-name">
+                    เครื่องผสมสีขนาด 1000 Kg
+                </span>
+
+            </div>
+
+            <div
+                class="machine-grid"
+                id="machineGrid1000"
+            >
+
+                <div class="machine-loading">
+                    Loading machine status...
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==============================
+             250 KG MIXERS
+        =============================== -->
+
+        <div class="machine-group">
+
+            <div class="machine-group-header">
+
+                <span class="machine-group-size">
+                    250 KG
+                </span>
+
+                <span class="machine-group-name">
+                    เครื่องผสมสีขนาด 250 Kg
+                </span>
+
+            </div>
+
+            <div
+                class="machine-grid"
+                id="machineGrid250"
+            >
+
+                <div class="machine-loading">
+                    Loading machine status...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+    </section>
+
+    <!-- =====================================================
+         CURRENT PRODUCTION + LATEST FINISHED
+    ====================================================== -->
+
+    <section class="production-grid">
+
+
+
+        <!-- =================================================
+             CURRENT PRODUCTION
+        ================================================== -->
+
+        <article
+            class="dashboard-card current-production-card"
+            id="currentProductionSection"
+        >
+
+            <div class="section-header current-production-header">
+
+                <div class="section-title-group">
+
+                    <h2 class="section-title-with-icon">
+
+                        <span
+                            class="section-title-icon"
+                            aria-hidden="true"
+                        >
+                            <svg viewBox="0 0 24 24">
+
+                                <path d="M4 20V10l5 3V9l5 3V5h6v15"></path>
+
+                                <path d="M4 20h16"></path>
+
+                                <path d="M8 20v-4"></path>
+                                <path d="M12 20v-4"></path>
+                                <path d="M16 20v-4"></path>
+
+                            </svg>
+                        </span>
+
+                        <span>
+                            Current Production
+                        </span>
+
+                    </h2>
+
+                    <p>
+                        รายละเอียด Order ที่กำลังผลิตหรือขัดข้อง
+                    </p>
+
+                </div>
+
+
+                <div class="active-order-selector">
+
+                    <label for="activeOrderSelect">
+                        SELECT ORDER
+                    </label>
+
+
+                    <select id="activeOrderSelect">
+
+                        <option value="">
+                            No active order
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="section-body">
+
+
+                <!-- CURRENT ORDER TOP -->
+
+                <div class="current-order-top">
+
+                    <div>
+
+                        <span class="detail-label">
+                            ORDER NO
+                        </span>
+
+                        <strong
+                            class="current-order-number"
+                            id="activeOrderNo"
+                        >
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div
+                        class="current-order-badges"
+                        id="activeOrderBadges"
+                    >
+
+                        <span class="type-badge type-unknown">
+                            —
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ORDER DETAILS -->
+
+                <div class="order-detail-grid">
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Queue
+                        </span>
+
+                        <strong id="activeQueue">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Requester
+                        </span>
+
+                        <strong id="activeRequester">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Customer
+                        </span>
+
+                        <strong id="activeCustomer">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Acknowledge
+                        </span>
+
+                        <strong id="activeAcknowledge">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Sheet Type
+                        </span>
+
+                        <strong id="activeSheetType">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Fabric
+                        </span>
+
+                        <strong id="activeFabric">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Color
+                        </span>
+
+                        <strong id="activeColor">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Thickness
+                        </span>
+
+                        <strong id="activeThickness">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Width
+                        </span>
+
+                        <strong id="activeWidth">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            GSM
+                        </span>
+
+                        <strong id="activeGsm">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Weight
+                        </span>
+
+                        <strong id="activeWeight">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Machine
+                        </span>
+
+                        <strong id="activeMachine">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Batch
+                        </span>
+
+                        <strong id="activeBatch">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Forecast
+                        </span>
+
+                        <strong id="activeForecast">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Start Production
+                        </span>
+
+                        <strong id="activeStartDate">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span class="detail-label">
+                            Expected Finish
+                        </span>
+
+                        <strong id="activeDueDate">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- PROGRESS -->
+
+                <div class="progress-section">
+
+                    <div class="progress-header">
+
+                        <span>
+                            Production Progress
+                        </span>
+
+                        <strong id="progressPercent">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="progress-track">
+
+                        <div
+                            class="progress-fill"
+                            id="progressFill"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- TIMER -->
+
+                <div class="timer-grid">
+
+
+                    <div class="timer-card">
+
+                        <span class="timer-label">
+                            ELAPSED TIME
+                        </span>
+
+                        <strong id="elapsedTime">
+                            00:00:00
+                        </strong>
+
+                    </div>
+
+
+                    <div class="timer-card">
+
+                        <span class="timer-label">
+                            COUNTDOWN
+                        </span>
+
+                        <strong id="countdownTime">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- TROUBLE ALERT -->
+
+                <div
+                    class="trouble-alert"
+                    id="activeTroubleBox"
+                    hidden
+                >
+
+                    <div class="trouble-alert-header">
+
+                        <span>
+                            ⚠
+                        </span>
+
+                        <strong>
+                            Production Trouble
+                        </strong>
+
+                    </div>
+
+
+                    <div class="trouble-alert-grid">
+
+
+                        <div>
+
+                            <span>
+                                สถานะ
+                            </span>
+
+                            <strong id="activeTroubleStatus">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                เริ่มขัดข้อง
+                            </span>
+
+                            <strong id="activeTroubleStart">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                เวลาขัดข้องสะสม
+                            </span>
+
+                            <strong id="activeTroubleTotal">
+                                —
+                            </strong>
+
+                        </div>
+
+                        <div>
+
+                            <span>
+                                หมายเหตุ
+                            </span>
+
+                            <strong id="activeTroubleRemark">
+                                —
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </article>
+
+
+
+        <!-- =================================================
+             LATEST FINISHED
+        ================================================== -->
+
+        <article
+            class="dashboard-card latest-finished-card"
+            id="latestFinishedSection"
+        >
+
+            <div class="section-header">
+
+                <div class="section-title-group">
+
+                    <h2 class="section-title-with-icon">
+
+                        <span
+                            class="section-title-icon"
+                            aria-hidden="true"
+                        >
+                            <svg viewBox="0 0 24 24">
+
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="9"
+                                ></circle>
+
+                                <path d="m8 12 2.5 2.5L16 9"></path>
+
+                            </svg>
+                        </span>
+
+                        <span>
+                            Latest Finished
+                        </span>
+
+                    </h2>
+
+                    <p>
+                        Order ล่าสุดที่ผลิตเสร็จ
+                    </p>
+
+                </div>
+
+
+                <span class="status-badge status-finished">
+                    FINISHED
+                </span>
+
+            </div>
+
+
+            <div class="section-body">
+
+                <div class="finished-detail-list">
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Queue
+                        </span>
+
+                        <strong id="finishQueue">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Order No
+                        </span>
+
+                        <strong id="finishOrderNo">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Type
+                        </span>
+
+                        <strong id="finishJobType">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Requester
+                        </span>
+
+                        <strong id="finishRequester">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Customer
+                        </span>
+
+                        <strong id="finishCustomer">
+                            —
+                        </strong>
+
+                    </div>
+
+                    <div class="finished-detail-row">
+
+                        <span>Acknowledge</span>
+                        <strong id="finishAcknowledge">—</strong>
+                    </div>
+
+                    <div class="finished-detail-row">
+
+                        <span>Sheet Type</span>
+                        <strong id="finishSheetType">—</strong>
+                    </div>
+
+                    <div class="finished-detail-row">
+
+                        <span>Fabric</span>
+                        <strong id="finishFabric">—</strong>
+                    </div>
+
+                    <div class="finished-detail-row">
+
+                        <span>Color</span>
+                        <strong id="finishColor">—</strong>
+                    </div>
+
+                    <div class="finished-detail-row">
+
+                        <span>Thickness</span>
+                        <strong id="finishThickness">—</strong>
+                    </div>
+
+                    <div class="finished-detail-row">
+
+                        <span>Width</span>
+                        <strong id="finishWidth">—</strong>
+                    </div>
+
+                    <div class="finished-detail-row">
+
+                        <span>GSM</span>
+                        <strong id="finishGsm">—</strong>
+                    </div>
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Machine
+                        </span>
+
+                        <strong id="finishMachine">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Batch
+                        </span>
+
+                        <strong id="finishBatch">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Weight
+                        </span>
+
+                        <strong id="finishWeight">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Forecast
+                        </span>
+
+                        <strong id="finishForecast">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Actual Time
+                        </span>
+
+                        <strong id="finishActualTime">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Trouble Time
+                        </span>
+
+                        <strong id="finishTroubleTime">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Start Date
+                        </span>
+
+                        <strong id="finishStartDate">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Finished Date
+                        </span>
+
+                        <strong id="finishDoneDate">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="finished-detail-row">
+
+                        <span>
+                            Remark
+                        </span>
+
+                        <strong id="finishRemark">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                <div
+                    class="data-status"
+                    id="dataStatus"
+                >
+                    Waiting for live data...
+                </div>
+
+            </div>
+
+        </article>
+
+
+    </section>
+
+
+    <!-- =====================================================
+         PRODUCTION OUTPUT
+    ====================================================== -->
+
+    <section
+        class="dashboard-card report-section"
+        id="productionOutputSection"
+    >
+
+        <div class="section-header">
+
+            <div class="section-title-group">
+
+                <h2 class="section-title-with-icon">
+
+                    <span
+                        class="section-title-icon"
+                        aria-hidden="true"
+                    >
+                        <svg viewBox="0 0 24 24">
+
+                            <path d="M4 20V10"></path>
+                            <path d="M10 20V4"></path>
+                            <path d="M16 20v-7"></path>
+                            <path d="M22 20H2"></path>
+
+                        </svg>
+                    </span>
+
+                    <span>
+                        Production Output
+                    </span>
+
+                </h2>
+
+                <p>
+                    สรุปผลผลิตตามช่วงเวลาที่เลือก
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="report-toolbar">
+
+
+            <!-- QUICK RANGE -->
+
+            <div class="quick-filter-group">
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-report="output"
+                    data-range="day"
+                >
+                    รายวัน
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-report="output"
+                    data-range="week"
+                >
+                    รายสัปดาห์
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-report="output"
+                    data-range="month"
+                >
+                    รายเดือน
+                </button>
+
+            </div>
+
+
+
+            <!-- DATE RANGE -->
+
+            <div class="date-filter-group">
+
+                <div class="date-field">
+
+                    <label for="outputStartDate">
+                        จากวันที่
+                    </label>
+
+                    <input
+                        type="date"
+                        id="outputStartDate"
+                    >
+
+                </div>
+
+
+                <div class="date-field">
+
+                    <label for="outputEndDate">
+                        ถึงวันที่
+                    </label>
+
+                    <input
+                        type="date"
+                        id="outputEndDate"
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ACTION -->
+
+            <div class="toolbar-actions">
+
+                <button
+                    type="button"
+                    class="button button-primary"
+                    id="searchOutputButton"
+                >
+                    Search
+                </button>
+
+
+                <button
+                    type="button"
+                    class="button button-secondary"
+                    id="resetOutputButton"
+                >
+                    Clear Filter
+                </button>
+
+
+                <button
+                    type="button"
+                    class="button button-save"
+                    id="saveOutputButton"
+                >
+                    Save Image
+                </button>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- EXPORT AREA -->
+
+        <div
+            class="export-area"
+            id="productionOutputExport"
+        >
+
+
+            <div class="report-export-header">
+
+                <div>
+
+                    <h3>
+                        Production Output Report
+                    </h3>
+
+                    <p id="outputRangeLabel">
+                        —
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- OUTPUT KPI -->
+
+            <div class="report-kpi-grid">
+
+
+                <div class="report-kpi-card">
+
+                    <span>
+                        Finished Orders
+                    </span>
+
+                    <strong id="outputTotalOrders">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="report-kpi-card">
+
+                    <span>
+                        Total Weight
+                    </span>
+
+                    <strong id="outputTotalWeight">
+                        0 kg
+                    </strong>
+
+                </div>
+
+
+                <div class="report-kpi-card">
+
+                    <span>
+                        Normal
+                    </span>
+
+                    <strong id="outputNormalOrders">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="report-kpi-card">
+
+                    <span>
+                        Rework
+                    </span>
+
+                    <strong id="outputReworkOrders">
+                        0
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- CHART -->
+
+            <div class="chart-container">
+
+                <canvas id="productionOutputChart"></canvas>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         TROUBLE HISTORY
+    ====================================================== -->
+
+    <section
+        class="dashboard-card report-section"
+        id="troubleHistorySection"
+    >
+
+        <div class="section-header">
+
+            <div class="section-title-group">
+
+                <h2 class="section-title-with-icon">
+
+                    <span
+                        class="section-title-icon"
+                        aria-hidden="true"
+                    >
+                        <svg viewBox="0 0 24 24">
+
+                           <path
+                               d="
+                                   M10.3 3.6
+                                   2.7 17
+                                   a2 2 0 0 0
+                                   1.7 3
+                                   h15.2
+                                   a2 2 0 0 0
+                                   1.7-3
+                                   L13.7 3.6
+                                   a2 2 0 0 0
+                                   -3.4 0
+                                   Z
+                                "
+                            ></path>
+
+                            <path d="M12 9v4"></path>
+                            <path d="M12 17h.01"></path>
+
+                        </svg>
+                    </span>
+
+                    <span>
+                        Trouble History
+                    </span>
+
+                </h2>
+
+                <p>
+                    ประวัติเหตุขัดข้องตามช่วงเวลาที่เลือก
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="report-toolbar">
+
+
+            <div class="quick-filter-group">
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-report="trouble"
+                    data-range="day"
+                >
+                    รายวัน
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-report="trouble"
+                    data-range="week"
+                >
+                    รายสัปดาห์
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-report="trouble"
+                    data-range="month"
+                >
+                    รายเดือน
+                </button>
+
+            </div>
+
+
+
+            <div class="date-filter-group">
+
+                <div class="date-field">
+
+                    <label for="troubleStartDate">
+                        จากวันที่
+                    </label>
+
+                    <input
+                        type="date"
+                        id="troubleStartDate"
+                    >
+
+                </div>
+
+
+                <div class="date-field">
+
+                    <label for="troubleEndDate">
+                        ถึงวันที่
+                    </label>
+
+                    <input
+                        type="date"
+                        id="troubleEndDate"
+                    >
+
+                </div>
+
+            </div>
+
+            <!-- ORDER SEARCH -->
+
+            <div class="order-search-group">
+
+                <label for="troubleOrderSearch">
+                    เลขที่ใบสั่ง Order
+                </label>
+
+                <input
+                    type="text"
+                    id="troubleOrderSearch"
+                    placeholder="กรอกเลขที่ Order"
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <div class="toolbar-actions">
+
+                <button
+                    type="button"
+                    class="button button-primary"
+                    id="searchTroubleButton"
+                >
+                    Search
+                </button>
+
+
+                <button
+                    type="button"
+                    class="button button-secondary"
+                    id="resetTroubleButton"
+                >
+                    Clear Filter
+                </button>
+
+
+                <button
+                    type="button"
+                    class="button button-save"
+                    id="saveTroubleButton"
+                >
+                    Save Image
+                </button>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- EXPORT AREA -->
+
+        <div
+            class="export-area"
+            id="troubleHistoryExport"
+        >
+
+            <div class="report-export-header">
+
+                <div>
+
+                    <h3>
+                        Trouble History Report
+                    </h3>
+
+                    <p id="troubleRangeLabel">
+                        —
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="result-count"
+                    id="troubleResultCount"
+                >
+                    0 RECORDS
+                </div>
+
+            </div>
+
+
+            <div class="table-scroll export-table-scroll">
+
+                <table class="data-table report-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                START
+                            </th>
+
+                            <th>
+                                END
+                            </th>
+
+                            <th>
+                                DURATION
+                            </th>
+
+                            <th>
+                                TYPE
+                            </th>
+
+                            <th>
+                                TROUBLE
+                            </th>
+
+                            <th>
+                                REMARK
+                            </th>
+
+                            <th>
+                                ORDER NO
+                            </th>
+
+                            <th>
+                                CUSTOMER
+                            </th>
+
+                            <th>
+                                MACHINE
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="troubleHistoryBody">
+
+                        <tr>
+
+                            <td
+                                colspan="9"
+                                class="table-message"
+                            >
+                                Select a date range
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         SEARCH FINISHED ORDER
+    ====================================================== -->
+
+    <section
+        class="dashboard-card report-section"
+        id="finishedOrderSection"
+    >
+
+        <div class="section-header">
+
+            <div class="section-title-group">
+
+                <h2 class="section-title-with-icon">
+
+                    <span
+                        class="section-title-icon"
+                        aria-hidden="true"
+                    >
+                        <svg viewBox="0 0 24 24">
+
+                            <circle
+                                cx="11"
+                                cy="11"
+                                r="7"
+                            ></circle>
+
+                            <path d="m20 20-4-4"></path>
+
+                            <path d="M8 11h6"></path>
+
+                        </svg>
+                    </span>
+
+                    <span>
+                        Search Finished Order
+                    </span>
+
+                </h2>
+
+                <p>
+                    ค้นหารายการผลิตเสร็จตามช่วงเวลา
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="report-toolbar">
+
+
+            <div class="quick-filter-group">
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-report="finished"
+                    data-range="day"
+                >
+                    รายวัน
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-report="finished"
+                    data-range="week"
+                >
+                    รายสัปดาห์
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-button"
+                    data-report="finished"
+                    data-range="month"
+                >
+                    รายเดือน
+                </button>
+
+            </div>
+
+
+
+            <div class="date-filter-group">
+
+                <div class="date-field">
+
+                    <label for="finishedStartDate">
+                        จากวันที่
+                    </label>
+
+                    <input
+                        type="date"
+                        id="finishedStartDate"
+                    >
+
+                </div>
+
+
+                <div class="date-field">
+
+                    <label for="finishedEndDate">
+                        ถึงวันที่
+                    </label>
+
+                    <input
+                        type="date"
+                        id="finishedEndDate"
+                    >
+
+                </div>
+
+            </div>
+
+            <!-- ORDER SEARCH -->
+
+            <div class="order-search-group">
+
+                <label for="finishedOrderSearch">
+                    เลขที่ใบสั่ง Order
+                </label>
+
+                <input
+                    type="text"
+                    id="finishedOrderSearch"
+                    placeholder="กรอกเลขที่ Order"
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <div class="toolbar-actions">
+
+                <button
+                    type="button"
+                    class="button button-primary"
+                    id="searchFinishedButton"
+                >
+                    Search
+                </button>
+
+
+                <button
+                    type="button"
+                    class="button button-secondary"
+                    id="resetFinishedButton"
+                >
+                    Clear Filter
+                </button>
+
+
+                <button
+                    type="button"
+                    class="button button-save"
+                    id="saveFinishedButton"
+                >
+                    Save Image
+                </button>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- EXPORT AREA -->
+
+        <div
+            class="export-area"
+            id="finishedOrderExport"
+        >
+
+            <div class="report-export-header">
+
+                <div>
+
+                    <h3>
+                        Finished Order Report
+                    </h3>
+
+                    <p id="finishedRangeLabel">
+                        —
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="result-count"
+                    id="finishedResultCount"
+                >
+                    0 ORDERS
+                </div>
+
+            </div>
+
+
+            <div class="table-scroll export-table-scroll">
+
+                <table class="data-table report-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                QUEUE
+                            </th>
+
+                            <th>
+                                ORDER NO
+                            </th>
+
+                            <th>
+                                TYPE
+                            </th>
+
+                            <th>
+                                REQUESTER
+                            </th>
+
+                            <th>
+                                CUSTOMER
+                            </th>
+
+                            <th>
+                                MACHINE
+                            </th>
+
+                            <th>
+                                BATCH
+                            </th>
+
+                            <th>
+                                KG
+                            </th>
+
+                            <th>
+                                FORECAST
+                            </th>
+
+                            <th>
+                                ACTUAL TIME
+                            </th>
+
+                            <th>
+                                TROUBLE TIME
+                            </th>
+
+                            <th>
+                                START
+                            </th>
+
+                            <th>
+                                FINISHED
+                            </th>
+
+                            <th>
+                                REMARK
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="finishedOrderBody">
+
+                        <tr>
+
+                            <td
+                                colspan="14"
+                                class="table-message"
+                            >
+                                Select a date range
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="main-footer">
+
+    <span id="footerStatus">
+        Production Monitor Dashboard · Waiting for API
+    </span>
+
+</footer>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>
