@@ -79,7 +79,15 @@ document.addEventListener(
 
     () => {
 
-        initializeLogin();
+        startClock();
+
+        bindEvents();
+
+        initializeDefaultDateRanges();
+
+        loadDashboardData();
+
+        startAutoRefresh();
 
     }
 
@@ -3820,233 +3828,120 @@ function renderTroubleHistory() {
             "troubleHistoryBody"
         );
 
-
     if (!body) return;
-
 
     const range =
         getSelectedDateRange(
             "trouble"
         );
 
-
     const orderSearch =
         getOrderSearchValue(
             "troubleOrderSearch"
         );
 
-
     const rows =
-        dashboardData.trouble.filter(
+        dashboardData.trouble.filter(item => {
 
-            item => {
+            const matchDate =
+                isDateInRange(
+                    item.start,
+                    range.start,
+                    range.end
+                );
 
-                const matchDate =
-                    isDateInRange(
-
-                        item.start,
-
-                        range.start,
-
-                        range.end
-
-                    );
-
-
-                const orderNo =
-                    String(
-                        item.orderNo || ""
-                    )
+            const orderNo =
+                String(item.orderNo || "")
                     .trim()
                     .toLowerCase();
 
+            const matchOrder =
+                orderSearch === "" ||
+                orderNo.includes(orderSearch);
 
-                const matchOrder =
+            return matchDate && matchOrder;
 
-                    orderSearch === "" ||
-
-                    orderNo.includes(
-                        orderSearch
-                    );
-
-
-                return (
-
-                    matchDate &&
-                    matchOrder
-
-                );
-
-            }
-
-        );
-
+        });
 
     setText(
-
         "troubleRangeLabel",
-
         createRangeLabel(
             range.start,
             range.end
         )
-
     );
-
 
     setText(
-
         "troubleResultCount",
-
-        rows.length +
-        " RECORDS"
-
+        rows.length + " RECORDS"
     );
 
-
-    if (
-        rows.length === 0
-    ) {
+    if (rows.length === 0) {
 
         body.innerHTML = `
-
             <tr>
-
-                <td
-                    colspan="9"
-                    class="table-message"
-                >
-
+                <td colspan="19" class="table-message">
                     ไม่พบประวัติเหตุขัดข้องที่ตรงกับเงื่อนไข
-
                 </td>
-
             </tr>
-
         `;
 
         return;
 
     }
 
-
     body.innerHTML =
-        rows
-        .map(
+        rows.map(item => `
 
-            item => `
+            <tr>
 
-                <tr>
+                <td>${escapeHtml(formatThaiDateTime(item.start))}</td>
 
-                    <td>
+                <td>${escapeHtml(formatThaiDateTime(item.end))}</td>
 
-                        ${escapeHtml(
-                            formatThaiDateTime(
-                                item.start
-                            )
-                        )}
+                <td>${escapeHtml(displayValue(item.duration))}</td>
 
-                    </td>
+                <td>${createTypeBadge(item.jobType)}</td>
 
+                <td>${escapeHtml(displayValue(item.reworkReason))}</td>
 
-                    <td>
+                <td>${escapeHtml(displayValue(item.trouble))}</td>
 
-                        ${escapeHtml(
-                            formatThaiDateTime(
-                                item.end
-                            )
-                        )}
+                <td>${escapeHtml(displayValue(item.remark))}</td>
 
-                    </td>
+                <td>
+                    <span class="order-number">
+                        ${escapeHtml(displayValue(item.orderNo))}
+                    </span>
+                </td>
 
+                <td>${escapeHtml(displayValue(item.requester))}</td>
 
-                    <td>
+                <td>${escapeHtml(displayValue(item.acknowledge))}</td>
 
-                        ${escapeHtml(
-                            displayValue(
-                                item.duration
-                            )
-                        )}
+                <td>${escapeHtml(displayValue(item.customer))}</td>
 
-                    </td>
+                <td>${escapeHtml(displayValue(item.sheetType))}</td>
 
+                <td>${escapeHtml(displayValue(item.fabric))}</td>
 
-                    <td>
+                <td>${escapeHtml(displayValue(item.color))}</td>
 
-                        ${createTypeBadge(
-                            item.jobType
-                        )}
+                <td>${escapeHtml(displayValue(item.thickness))}</td>
 
-                    </td>
+                <td>${escapeHtml(displayValue(item.width))}</td>
 
+                <td>${escapeHtml(displayValue(item.gsm))}</td>
 
-                    <td>
+                <td>${escapeHtml(displayValue(item.machine))}</td>
 
-                        ${escapeHtml(
-                            displayValue(
-                                item.trouble
-                            )
-                        )}
+                <td>${escapeHtml(displayValue(item.weight))}</td>
 
-                    </td>
+            </tr>
 
-
-                    <td>
-
-                        ${escapeHtml(
-                            displayValue(
-                                item.remark
-                            )
-                        )}
-
-                    </td>
-
-
-                    <td>
-
-                        <span class="order-number">
-
-                            ${escapeHtml(
-                                displayValue(
-                                    item.orderNo
-                                )
-                            )}
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-
-                        ${escapeHtml(
-                            displayValue(
-                                item.customer
-                            )
-                        )}
-
-                    </td>
-
-
-                    <td>
-
-                        ${escapeHtml(
-                            displayValue(
-                                item.machine
-                            )
-                        )}
-
-                    </td>
-
-                </tr>
-
-            `
-
-        )
-        .join("");
+        `).join("");
 
 }
-
 
 /* =========================================================
    FINISHED ORDER SEARCH
@@ -5909,10 +5804,7 @@ function initializeSimpleLogin() {
                 SIMPLE_LOGIN_PASSWORD
             ) {
 
-                sessionStorage.setItem(
-                    "pvcDashboardLoggedIn",
-                    "true"
-                );
+                // ไม่ต้องเก็บอะไร
 
 
                 loginError.textContent =
@@ -5997,84 +5889,3 @@ document.addEventListener(
     initializeSimpleLogin
 
 );
-const LOGIN_PASSWORD = "8888";
-
-function startSystem() {
-
-    startClock();
-
-    bindEvents();
-
-    initializeDefaultDateRanges();
-
-    loadDashboardData();
-
-    startAutoRefresh();
-
-}
-
-function initializeLogin() {
-
-    const login =
-        document.getElementById("loginScreen");
-
-    const password =
-        document.getElementById("loginPassword");
-
-    const form =
-        document.getElementById("loginForm");
-
-    const error =
-        document.getElementById("loginError");
-
-    if (
-        !login ||
-        !password ||
-        !form
-    ) {
-
-        console.error(
-            "Login screen not found."
-        );
-
-        return;
-
-    }
-
-    login.style.display = "flex";
-
-    form.addEventListener(
-
-        "submit",
-
-        e => {
-
-            e.preventDefault();
-
-            if (
-                password.value ===
-                LOGIN_PASSWORD
-            ) {
-
-                login.style.display = "none";
-
-                startSystem();
-
-            }
-
-            else {
-
-                error.textContent =
-                    "รหัสผ่านไม่ถูกต้อง";
-
-                password.value = "";
-
-                password.focus();
-
-            }
-
-        }
-
-    );
-
-}
