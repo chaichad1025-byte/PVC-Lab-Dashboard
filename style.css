@@ -669,7 +669,7 @@ img {
 .queue-table {
 
     min-width:
-        1390px;
+        1520px;
 
     table-layout:
         fixed;
@@ -790,7 +790,7 @@ img {
 .col-queue {
 
     width:
-        70px;
+        75px;
 
     text-align:
         center;
@@ -802,7 +802,7 @@ img {
 .col-status {
 
     width:
-        155px;
+        165px;
 
     text-align:
         center;
@@ -814,7 +814,7 @@ img {
 .col-order {
 
     width:
-        135px;
+        150px;
 
 }
 
@@ -823,7 +823,7 @@ img {
 .col-type {
 
     width:
-        100px;
+        110px;
 
     text-align:
         center;
@@ -844,7 +844,7 @@ img {
 .col-customer {
 
     width:
-        150px;
+        170px;
 
 }
 
@@ -853,7 +853,7 @@ img {
 .col-fabric {
 
     width:
-        140px;
+        190px;
 
 }
 
@@ -862,7 +862,7 @@ img {
 .col-color {
 
     width:
-        105px;
+        170px;
 
 }
 
@@ -871,7 +871,7 @@ img {
 .col-machine {
 
     width:
-        205px;
+        170px;
 
     text-align:
         left;
@@ -883,7 +883,7 @@ img {
 .col-batch {
 
     width:
-        100px;
+        90px;
 
     text-align:
         center;
@@ -895,7 +895,7 @@ img {
 .col-weight {
 
     width:
-        100px;
+        110px;
 
     text-align:
         right;
@@ -907,7 +907,7 @@ img {
 .col-forecast {
 
     width:
-        140px;
+        170px;
 
 }
 
@@ -943,7 +943,7 @@ tbody td:nth-child(4) {
 tbody td:nth-child(9) {
 
     text-align:
-        left;
+        center;
 
 }
 
@@ -964,7 +964,40 @@ tbody td:nth-child(11) {
         right;
 
 }
+.queue-table th{
+    text-align:center;
+}
 
+.queue-table td{
+    vertical-align:middle;
+}
+
+.queue-table th.col-order,
+.queue-table td:nth-child(3),
+
+.queue-table th.col-requester,
+.queue-table td:nth-child(5),
+
+.queue-table th.col-customer,
+.queue-table td:nth-child(6),
+
+.queue-table th.col-fabric,
+.queue-table td:nth-child(7),
+
+.queue-table th.col-color,
+.queue-table td:nth-child(8){
+    text-align:left;
+}
+
+.queue-table th.col-machine,
+.queue-table td:nth-child(9){
+    text-align:center;
+}
+
+.queue-table th.col-forecast,
+.queue-table td:nth-child(12){
+    text-align:center;
+}
 
 /* =========================================================
    TABLE TEXT HELPERS
@@ -4465,6 +4498,47 @@ table {
 
     font-weight:
         700;
+
+}
+.queue-filter{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-right:18px;
+
+}
+
+.queue-filter label{
+
+    font-size:11px;
+
+    font-weight:700;
+
+    color:var(--muted);
+
+}
+
+.queue-filter select{
+
+    height:34px;
+
+    padding:0 10px;
+
+    border:1px solid var(--border);
+
+    border-radius:8px;
+
+    background:#fff;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    cursor:pointer;
 
 }
 
