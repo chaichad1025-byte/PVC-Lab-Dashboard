@@ -240,6 +240,24 @@
 
             <div class="queue-header-summary">
 
+                <div class="queue-filter">
+
+                    <label for="queueMachineFilter">
+                        
+                        MACHINE
+
+                    </label>    
+
+                    <select id="queueMachineFilter">
+
+                        <option value="ALL">
+                            ทั้งหมด
+                        </option>
+                    
+                    </select>
+
+                </div>
+
                 <span>
                     RUNNING
                     <strong id="queueHeaderRunning">0</strong>
@@ -2255,6 +2273,22 @@
                             </th>
 
                             <th>
+                                FINISH ORDER
+                            </th>
+
+                            <th>
+                                GRADE A
+                            </th>
+
+                            <th>
+                                GRADE B
+                            </th>
+
+                            <th>
+                                LOST ORDER
+                            </th>
+
+                            <th>
                                 FORECAST
                             </th>
 
@@ -2288,7 +2322,7 @@
                         <tr>
 
                             <td
-                                colspan="14"
+                                colspan="18"
                                 class="table-message"
                             >
                                 Select a date range
