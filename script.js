@@ -59,6 +59,7 @@ let dashboardData = {
 
 };
 
+let selectedMachine = "ALL";
 
 let selectedActiveOrder = "";
 
@@ -209,6 +210,31 @@ function bindEvents() {
 
     }
 
+    /* QUEUE MACHINE FILTER */
+
+    const queueMachineFilter =
+        document.getElementById(
+            "queueMachineFilter"
+        );
+
+    if(queueMachineFilter){
+
+        queueMachineFilter.addEventListener(
+
+            "change",
+
+            event=>{
+
+                selectedMachine =
+                    event.target.value;
+
+                renderQueue();
+
+            }
+
+        );
+
+    }
 
     /* QUICK FILTER BUTTONS */
 
@@ -559,6 +585,8 @@ async function loadDashboardData(
             dashboardData
         );
 
+        // สร้างรายการเครื่องใน Dropdown
+        updateMachineFilter();
 
         // Render ทุกส่วนใหม่
         // โดยไม่ Reset Filter วันที่
@@ -911,12 +939,59 @@ function normalizeOrder(
                     "note",
                     "REMARK"
                 ]
+            ),
+
+        // =====================================
+        // NEW FINISH DATA
+        // =====================================
+
+        finishOrder:
+            toNumber(
+                pick(
+                    raw,
+                    [
+                        "finishOrder",
+                        "FINISH ORDER"
+                    ]
+                )
+            ),
+
+        gradeA:
+            toNumber(
+                pick(
+                    raw,
+                    [
+                        "gradeA",
+                        "GRADE A"
+                    ]
+                )
+            ),
+
+        gradeB:
+            toNumber(
+                pick(
+                    raw,
+                    [
+                        "gradeB",
+                        "GRADE B"
+                    ]
+                )
+            ),
+
+        lostOrder:
+            toNumber(
+                pick(
+                    raw,
+                    [
+                        "lostOrder",
+                        "LOST ORDER"
+                    ]
+                )
             )
 
     };
 
 }
-
 
 /* =========================================================
    NORMALIZE TROUBLE
@@ -1154,7 +1229,54 @@ function renderDashboard() {
 
 }
 
+function updateMachineFilter(){
 
+    const select =
+        document.getElementById(
+            "queueMachineFilter"
+        );
+
+    if(!select) return;
+
+    const machines =
+
+        [...new Set(
+
+            dashboardData.queue.map(
+
+                item=>item.machine
+
+            )
+
+        )]
+
+        .filter(Boolean)
+
+        .sort();
+
+    select.innerHTML =
+        `<option value="ALL">
+
+            ทั้งหมด
+
+        </option>`;
+
+    machines.forEach(machine=>{
+
+        select.innerHTML +=
+
+        `<option value="${machine}">
+
+            ${machine}
+
+        </option>`;
+
+    });
+
+    select.value =
+        selectedMachine;
+
+}
 /* =========================================================
    QUEUE TABLE
 ========================================================= */
@@ -1176,16 +1298,28 @@ function renderQueue() {
     if (!body) return;
 
 
-    const orders =
+    let orders =
         [...dashboardData.queue]
         .filter(
 
-            order =>
+            order=>
 
-                order.status !==
-                "เสร็จสิ้น"
+                order.status!="เสร็จสิ้น"
 
         );
+
+    if(selectedMachine!="ALL"){
+
+        orders =
+            orders.filter(
+
+                order=>
+
+                    order.machine===selectedMachine
+
+            );
+
+    }
 
 
     if (count) {
@@ -4159,6 +4293,29 @@ function renderFinishedOrders() {
 
                     </td>
 
+                    <td>
+
+                        ${order.finishOrder ? formatNumber(order.finishOrder) : "-"}
+                    
+                    </td>
+
+                    <td>
+
+                         ${order.gradeA ? formatNumber(order.gradeA) : "-"}
+                    
+                    </td>
+
+                    <td>
+
+                         ${order.gradeB ? formatNumber(order.gradeB) : "-"}
+                    
+                    </td>
+
+                    <td>
+
+                       ${order.lostOrder ? formatNumber(order.lostOrder) : "-"}
+
+                    </td>
 
                     <td>
 
